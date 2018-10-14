@@ -1,4 +1,9 @@
 
+
+本人声明，这个框架不是我写的是github上开源项目tcc-transaction，我放在我github
+上主要是因为我自己阅读该框架，并添加注释，方便在公司里和卧室统一注释。仅供我自己学习使用
+
+
 使用指南1.1.x:https://github.com/changmingxie/tcc-transaction/wiki/%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%971.1.x
 
 1.1.x 源码分支：https://github.com/changmingxie/tcc-transaction/tree/master
