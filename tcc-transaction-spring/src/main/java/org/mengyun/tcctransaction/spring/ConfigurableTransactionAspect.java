@@ -16,7 +16,7 @@ public class ConfigurableTransactionAspect extends CompensableTransactionAspect 
     private TransactionConfigurator transactionConfigurator;
 
     public void init() {
-
+        /*获取事务管理器*/
         TransactionManager transactionManager = transactionConfigurator.getTransactionManager();
 
         CompensableTransactionInterceptor compensableTransactionInterceptor = new CompensableTransactionInterceptor();

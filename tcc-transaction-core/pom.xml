@@ -57,6 +57,10 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mengyun</groupId>
+            <artifactId>tcc-transaction-api</artifactId>
+        </dependency>
 
     </dependencies>
 

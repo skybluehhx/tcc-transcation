@@ -17,7 +17,7 @@ public class CompensableMethodUtils {
     public static Method getCompensableMethod(ProceedingJoinPoint pjp) {
         Method method = ((MethodSignature) (pjp.getSignature())).getMethod();
 
-        if (method.getAnnotation(Compensable.class) == null) {
+        if (method.getAnnotation(Compensable.class) == null) {//该类可能是被代理
             try {
                 method = pjp.getTarget().getClass().getMethod(method.getName(), method.getParameterTypes());
             } catch (NoSuchMethodException e) {

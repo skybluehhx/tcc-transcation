@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 可缓存的事务仓库，对TransactionRepository提供
+ * 基本的实现，
  * Created by changmingxie on 10/30/15.
  */
 public abstract class CachableTransactionRepository implements TransactionRepository {
 
     private int expireDuration = 120;
-
+    /*提供对TCC的缓存*/
     private Cache<Xid, Transaction> transactionXidCompensableTransactionCache;
 
     @Override

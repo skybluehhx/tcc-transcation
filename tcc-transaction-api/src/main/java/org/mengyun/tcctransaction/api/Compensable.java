@@ -27,12 +27,12 @@ public @interface Compensable {
 
     class NullableTransactionContextEditor implements TransactionContextEditor {
 
-        @Override
+
         public TransactionContext get(Object target, Method method, Object[] args) {
             return null;
         }
 
-        @Override
+
         public void set(TransactionContext transactionContext, Object target, Method method, Object[] args) {
 
         }
@@ -40,7 +40,7 @@ public @interface Compensable {
 
     class DefaultTransactionContextEditor implements TransactionContextEditor {
 
-        @Override
+
         public TransactionContext get(Object target, Method method, Object[] args) {
             int position = getTransactionContextParamPosition(method.getParameterTypes());
 
@@ -51,7 +51,7 @@ public @interface Compensable {
             return null;
         }
 
-        @Override
+
         public void set(TransactionContext transactionContext, Object target, Method method, Object[] args) {
 
             int position = getTransactionContextParamPosition(method.getParameterTypes());
