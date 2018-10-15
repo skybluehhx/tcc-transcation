@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * TCC事务恢复。。用于TCC事务的补尝阶段，
+ * 当TCC事务执行失败时，用来保证事务的最终一致性
  * Created by changmingxie on 11/10/15.
  */
 public class TransactionRecovery {
@@ -30,6 +32,10 @@ public class TransactionRecovery {
         recoverErrorTransactions(transactions);
     }
 
+    /**
+     * 返回当前时间之前失败的事务
+     * @return
+     */
     private List<Transaction> loadErrorTransactions() {
 
 
@@ -41,6 +47,10 @@ public class TransactionRecovery {
         return transactionRepository.findAllUnmodifiedSince(new Date(currentTimeInMillis - recoverConfig.getRecoverDuration() * 1000));
     }
 
+    /**
+     * 恢复失败的事务
+     * @param transactions
+     */
     private void recoverErrorTransactions(List<Transaction> transactions) {
 
 

@@ -28,7 +28,7 @@ import java.util.Set;
 public class CompensableTransactionInterceptor {
 
     static final Logger logger = Logger.getLogger(CompensableTransactionInterceptor.class.getSimpleName());
-
+    /*事务管理器*/
     private TransactionManager transactionManager;
 
     private Set<Class<? extends Exception>> delayCancelExceptions;
@@ -41,16 +41,24 @@ public class CompensableTransactionInterceptor {
         this.delayCancelExceptions = delayCancelExceptions;
     }
 
+    /**
+     * TCC事务拦截器
+     * @param pjp
+     * @return
+     * @throws Throwable
+     */
     public Object interceptCompensableMethod(ProceedingJoinPoint pjp) throws Throwable {
-
+        //获取带有compensable注解的方法
         Method method = CompensableMethodUtils.getCompensableMethod(pjp);
 
         Compensable compensable = method.getAnnotation(Compensable.class);
+        //获取事务的传播行为
         Propagation propagation = compensable.propagation();
+        //获取事务的transactionContext
         TransactionContext transactionContext = FactoryBuilder.factoryOf(compensable.transactionContextEditor()).getInstance().get(pjp.getTarget(), method, pjp.getArgs());
-
+        //是否开启异步提交属性
         boolean asyncConfirm = compensable.asyncConfirm();
-
+        //是否开启有异步`取消属性
         boolean asyncCancel = compensable.asyncCancel();
 
         boolean isTransactionActive = transactionManager.isTransactionActive();
@@ -58,7 +66,7 @@ public class CompensableTransactionInterceptor {
         if (!TransactionUtils.isLegalTransactionContext(isTransactionActive, propagation, transactionContext)) {
             throw new SystemException("no active compensable transaction while propagation is mandatory for method " + method.getName());
         }
-
+        //方法的类型
         MethodType methodType = CompensableMethodUtils.calculateMethodType(propagation, isTransactionActive, transactionContext);
 
         switch (methodType) {
@@ -71,7 +79,14 @@ public class CompensableTransactionInterceptor {
         }
     }
 
-
+    /**
+     *
+     * @param pjp
+     * @param asyncConfirm
+     * @param asyncCancel
+     * @return
+     * @throws Throwable
+     */
     private Object rootMethodProceed(ProceedingJoinPoint pjp, boolean asyncConfirm, boolean asyncCancel) throws Throwable {
 
         Object returnValue = null;
@@ -80,10 +95,10 @@ public class CompensableTransactionInterceptor {
 
         try {
 
-            transaction = transactionManager.begin();
+            transaction = transactionManager.begin(); //开启事务
 
             try {
-                returnValue = pjp.proceed();
+                returnValue = pjp.proceed(); //执行方法
             } catch (Throwable tryingException) {
 
                 if (!isDelayCancelException(tryingException)) {
@@ -96,9 +111,9 @@ public class CompensableTransactionInterceptor {
                 throw tryingException;
             }
 
-            transactionManager.commit(asyncConfirm);
+            transactionManager.commit(asyncConfirm); //提交事务
 
-        } finally {
+        } finally { //处理后续工作
             transactionManager.cleanAfterCompletion(transaction);
         }
 

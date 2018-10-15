@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 
 /**
+ * TCC事务管理器，用来控制TCC事务的执行
  * Created by changmingxie on 10/26/15.
  */
 public class TransactionManager {
@@ -18,6 +19,7 @@ public class TransactionManager {
 
     private TransactionRepository transactionRepository;
 
+    /*为什么放队里？涉及到事务的传播行为，使用队列保存，可以进行事务的挂起*/
     private static final ThreadLocal<Deque<Transaction>> CURRENT = new ThreadLocal<Deque<Transaction>>();
 
     private ExecutorService executorService;
@@ -33,14 +35,23 @@ public class TransactionManager {
     public TransactionManager() {
     }
 
+    /**
+     * 开启TCC事务,创建一个TCC事务对象
+     * @return
+     */
     public Transaction begin() {
 
         Transaction transaction = new Transaction(TransactionType.ROOT);
         transactionRepository.create(transaction);
-        registerTransaction(transaction);
+        registerTransaction(transaction);//注册该事务
         return transaction;
     }
 
+    /**
+     * 涉及到事务的传播行为
+     * @param transactionContext 事务上下文，用于支持事物的传播行为，（挂机当前）事务时，保留事务信息
+     * @return
+     */
     public Transaction propagationNewBegin(TransactionContext transactionContext) {
 
         Transaction transaction = new Transaction(transactionContext);
@@ -67,10 +78,10 @@ public class TransactionManager {
         final Transaction transaction = getCurrentTransaction();
 
         transaction.changeStatus(TransactionStatus.CONFIRMING);
-
+        /*更新事务的状态，因为涉及到持久化，将该事务更改到事务仓库当中*/
         transactionRepository.update(transaction);
 
-        if (asyncCommit) {
+        if (asyncCommit) { //一步提交事务
             try {
                 Long statTime = System.currentTimeMillis();
 
@@ -85,7 +96,7 @@ public class TransactionManager {
                 logger.warn("compensable transaction async submit confirm failed, recovery job will try to confirm later.", commitException);
                 throw new ConfirmingException(commitException);
             }
-        } else {
+        } else { //同步提交事务
             commitTransaction(transaction);
         }
     }
